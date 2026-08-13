@@ -12,7 +12,7 @@ export const createCategory = async (req, res, next) => {
         }
 
         const data = await Category.create({
-            categoryName: name,
+            categoryName: categoryName,
         });
 
         return res.status(201).json({
