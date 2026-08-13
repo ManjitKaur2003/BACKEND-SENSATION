@@ -1,4 +1,6 @@
 import { Auth } from "../modal/auth.schema.js";
+import { genToken } from "../utils/genToken.js";
+
 export const signup = async (req, res, next) => {
     try {
         const { username, email, password } = req.body;
@@ -58,13 +60,27 @@ export const signin = async (req, res, next) => {
                 message: "password is incorrect"
             });
         }
-        return res.status(200).json({
-            message: "User Signin Successfully",
+
+        const token = await genToken(user._id, user.username, user.email);
+        console.log(token, "test") 
+
+        return res
+        .status(200)
+        .cookie("token", token,{
+            httpOnly: true,
+            secure: false,
+            sameSite: "strict",
+            maxAge: 24 * 60 * 60 * 1000,
+        })
+        .json({
+            message: "User logged in successfully",
             data: {
                 _id: user._id,
                 email: user.email,
+
             },
         });
+
 
     } catch (error) {
         return res.status(500).json({
