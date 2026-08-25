@@ -88,3 +88,28 @@ export const signin = async (req, res, next) => {
         });
     }
 }
+
+export const getUser = async (req, res, next) => {
+    try{
+        const user = await Auth.findOne({ _id: req.user.id});
+        if (!user) {
+            return res.status(400).json({
+                message: "User not found",
+            });
+        }
+        return res.status(200).json({
+            message: "User Signin Successfully",
+            data: {
+                _id: user._id,
+                userNmae: user.username,
+                email: user.email,
+            },
+        });
+
+    } catch (err) {
+        return res.status(500).json({
+            message: err.message,
+        });
+    }
+
+    };

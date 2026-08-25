@@ -4,11 +4,18 @@ import authRouter from "./api/routes/auth.routes.js";
 import categoryRouter from "./api/routes/category.routes.js";
 import cookieParser from "cookie-parser";
 import budgetRouter from "./api/routes/budget.routes.js";
+import cors from "cors";
 
 const app = express();
 // config:
 dotenv.config();
 //middlewares:
+app.use(
+    cors({
+        origin: ["http://localhost:5173"],
+        credentials: true,
+    }),
+)
 app.use(express.json());
 app.use(cookieParser());
 
