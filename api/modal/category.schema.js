@@ -1,14 +1,22 @@
 import mongoose from "mongoose";
 
 const categorySchema = new mongoose.Schema(
-    {
-        categoryName: {
-            type: String,
-            required: true,
-            trim: true,
-        },
+  {
+    category: {
+      type: String,
+      required: true,
+      trim: true,
     },
-    { timestamps: true }
+  },
+  {
+    timestamps: true,
+    toJSON: { virtuals: true },
+    toObject: { virtuals: true },
+  },
 );
+
+categorySchema.virtual("name").get(function () {
+  return this.category;
+});
 
 export const Category = mongoose.model("Category", categorySchema);

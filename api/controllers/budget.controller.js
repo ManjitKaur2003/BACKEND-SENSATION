@@ -3,16 +3,15 @@ import { Budget } from "../modal/budget.schema.js";
 export const createBudget = async (req, res, next) => {
   try {
     const { category, amount, month, year } = req.body;
-
     if (!category || !amount || !month || !year) {
       return res.status(400).json({
-        message: "All fields are required",
+        message: "all fields are required",
       });
     }
 
     const isBudgetExist = await Budget.findOne({
       user: req.user._id,
-      caregory: category,
+      category: category,
       month: month,
       year: year,
     });
@@ -22,7 +21,6 @@ export const createBudget = async (req, res, next) => {
         message: "Budget with this category is already exist",
       });
     }
-
     const budgetData = await Budget.create({
       user: req.user._id,
       category,
@@ -30,10 +28,11 @@ export const createBudget = async (req, res, next) => {
       month,
       year,
     });
-
     return res.status(201).json({
       message: "Budget created successfully",
-      data: budgetData,
+      data: {
+        budget: budgetData._id,
+      },
     });
   } catch (err) {
     return res.status(500).json({
@@ -42,33 +41,58 @@ export const createBudget = async (req, res, next) => {
   }
 };
 
-export const getBudgets = async (req, res, next) => {
+export const getBudget = async (req, res, next) => {
   try {
-    const budgets = await Budget.find().populate([
+    const budget = await Budget.find({ user: req.user._id }).populate([
       {
         path: "user",
-        select: "-password"
+        select: "-password",
       },
-
-
       {
         path: "category",
-      }
+      },
     ]);
-    if (budgets.length === 0) {
-      return res.status(404).json({
-        message: "No budget found"
-
-      })
+    if (budget.length === 0) {
+      return res.status(400).json({
+        message: "Budget Not found",
+      });
     }
     return res.status(200).json({
-      budgets,
-    })
-
-  }
-  catch (error) {
+      budget,
+    });
+  } catch (err) {
     return res.status(500).json({
-      message: err.message
+      message: err.message,
     });
   }
 };
+
+export const getBudgetById = async (req, res, next) => {
+  try {
+    const { id } = req.params;
+    const budget = await Budget.findOne({ _id: id, user: req.user._id }).populate([
+      {
+        path: "user",
+        select: "-password",
+      },
+      {
+        path: "category",
+      },
+    ]);
+
+    if (!budget) {
+      return res.status(404).json({
+        message: "Budget Not found",
+      });
+    }
+
+    return res.status(200).json({
+      budget,
+    });
+  } catch (err) {
+    return res.status(500).json({
+      message: err.message,
+    });
+  }
+};
+
